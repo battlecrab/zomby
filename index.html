@@ -1,0 +1,535 @@
+<html>
+<head></head>
+<body>
+	<div>
+		<div style='float:left;border-style: solid;border-width: 1px;padding-left:10px;padding-right:10px'>
+			<p id = 'out' style='font: 15px consolas'></p>
+		</div>
+		<div style='float:left;border-style: solid;border-width: 1px;margin-left:10px;padding-left:10px;padding-right:30px;height: 390px; overflow: auto;'>
+			<p id = 'stat' style='font: 11px consolas;'></p>
+		</div>
+	</div>	
+</body>
+</html>
+<script>
+
+var map = new Array();
+
+var zKilled = 0;
+var zCreated = 0;
+
+var runs = 100;
+
+var lCount = 0;
+var decay = new Array();
+
+var z = 1000; var h = 0; var p = 0;
+var total;
+
+function createMap(){
+	decay = new Array();
+	lCount = 0;
+
+	total = (Math.floor(Math.random()*3)+1)*100;
+	z = 1000; h = 0; p = 0;
+	while(z+h+p>total||p<0){
+		z = Math.floor(Math.random()*total);
+		h = Math.floor(Math.random()*total);
+		p = total-z-h;
+	}
+
+	console.log("z:" +z+ " h: "+h+" p:"+p+" total:"+total);
+
+	zKilled = 0;
+	zCreated = 0;
+
+	for(var c = 0;c<20;c++){
+		map[c] = new Array();
+		for(var c1 = 0;c1<20;c1++){
+			map[c][c1] = ". ";
+		}
+	}
+
+	// place zombies
+
+	for(var c = 0;c<z;c++){
+		var placed = false;
+		while(!placed){
+			var x = Math.floor(Math.random()*20);
+			var y = Math.floor(Math.random()*20);
+
+			if(map[y][x] == ". "){
+				map[y][x] = "Z ";
+				placed = true;
+			}
+		}
+	}
+
+	// place hunters
+
+	for(var c = 0;c<h;c++){
+		var placed = false;
+		while(!placed){
+			var x = Math.floor(Math.random()*20);
+			var y = Math.floor(Math.random()*20);
+
+			if(map[y][x] == ". "){
+				map[y][x] = "H ";
+				placed = true;
+			}
+		}
+	}
+
+	// place people
+
+	for(var c = 0;c<p;c++){
+		var placed = false;
+		while(!placed){
+			var x = Math.floor(Math.random()*20);
+			var y = Math.floor(Math.random()*20);
+
+			if(map[y][x] == ". "){
+				map[y][x] = "P ";
+				placed = true;
+			}
+		}
+	}
+
+}
+
+function draw(){
+
+	var str = "";
+
+	for(var c = 0;c<20;c++){
+		
+		for(var c1 = 0;c1<20;c1++){
+			str+= map[c][c1];
+		}
+		str+='<br/>';
+	}
+
+	document.getElementById('out').innerHTML = str;
+}
+
+
+
+function loop(){
+
+	
+	var zKilledTemp = zKilled;
+	var zCreatedTemp = zCreated;
+
+	var map2 = new Array();
+	for (var c = 0;c<20;c++){
+		map2[c]= new Array();
+		for(var c1 = 0;c1<20;c1++){
+			map2[c][c1]= map[c][c1];
+		}
+	}
+
+
+
+	//hunters move
+		for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="H "){
+					var dir = Math.floor(Math.random()*8);
+					//console.log(dir);
+
+					switch(dir){
+						case 0://left
+							if(c1-1>=0){
+								if(map2[c][c1-1]==". "){
+									map2[c][c1-1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 1://right
+							if(c1+1<20){
+								if(map2[c][c1+1]==". "){
+									map2[c][c1+1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 2://up
+							if(c-1>=0){
+								if(map2[c-1][c1]==". "){
+									map2[c-1][c1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 3://down
+							if(c+1<20){
+								if(map2[c+1][c1]==". "){
+									map2[c+1][c1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 4://ul
+							if(c1-1>=0&&c-1>=0){
+								if(map2[c-1][c1-1]==". "){
+									map2[c-1][c1-1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 5://ur
+							if(c1+1<20&&c-1>=0){
+								if(map2[c-1][c1+1]==". "){
+									map2[c-1][c1+1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 6://dl
+							if(c1-1>=0&&c+1<20){
+								if(map2[c+1][c1-1]==". "){
+									map2[c+1][c1-1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 7://dr
+							if(c1+1<20&&c+1<20){
+								if(map2[c+1][c1+1]==". "){
+									map2[c+1][c1+1]="H ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+
+						default:
+					}
+				}
+			}
+		
+		}
+
+	for (var c = 0;c<20;c++){
+		for(var c1 = 0;c1<20;c1++){
+			map[c][c1]= map2[c][c1];
+		}
+	}
+
+	//people move
+		for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="P "){
+
+					var safe = true;
+
+					if(c1-1>=0){
+						if(map[c][c1-1]=="Z "){safe = false;}
+					}
+					if(c1+1<20){
+						if(map[c][c1+1]=="Z "){safe = false;}
+					}
+					if(c-1>=0){
+						if(map[c-1][c1]=="Z "){safe = false;}
+					}
+					if(c+1<20){
+						if(map[c+1][c1]=="Z "){safe = false;}
+					}
+					if(c-1>=0&&c1-1>=0){
+						if(map[c-1][c1-1]=="Z "){safe = false;}
+					}
+					if(c+1<20&&c1+1<20){
+						if(map[c+1][c1+1]=="Z "){safe = false;}
+					}
+					if(c-1>=0&&c1+1<20){
+						if(map[c-1][c1+1]=="Z "){safe = false;}
+					}
+					if(c+1<20&&c1-1>=0){
+						if(map[c+1][c1-1]=="Z "){safe = false;}
+					}
+
+
+
+					if(safe){continue;}
+
+					var dir = Math.floor(Math.random()*8);
+					//console.log(dir);
+
+					switch(dir){
+						case 0://left
+							if(c1-1>=0){
+								if(map2[c][c1-1]==". "){
+									map2[c][c1-1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 1://right
+							if(c1+1<20){
+								if(map2[c][c1+1]==". "){
+									map2[c][c1+1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 2://up
+							if(c-1>=0){
+								if(map2[c-1][c1]==". "){
+									map2[c-1][c1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 3://down
+							if(c+1<20){
+								if(map2[c+1][c1]==". "){
+									map2[c+1][c1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 4://ul
+							if(c1-1>=0&&c-1>=0){
+								if(map2[c-1][c1-1]==". "){
+									map2[c-1][c1-1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 5://ur
+							if(c1+1<20&&c-1>=0){
+								if(map2[c-1][c1+1]==". "){
+									map2[c-1][c1+1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 6://dl
+							if(c1-1>=0&&c+1<20){
+								if(map2[c+1][c1-1]==". "){
+									map2[c+1][c1-1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 7://dr
+							if(c1+1<20&&c+1<20){
+								if(map2[c+1][c1+1]==". "){
+									map2[c+1][c1+1]="P ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+
+						default:
+					}
+				}
+			}
+		
+		}
+
+	for (var c = 0;c<20;c++){
+		for(var c1 = 0;c1<20;c1++){
+			map[c][c1]= map2[c][c1];
+		}
+	}
+
+
+	//zombies kill
+
+	for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="Z "){
+					
+				
+
+					if(c1-1>=0){
+						if(map[c][c1-1]=="H "||map[c][c1-1]=="P "){map[c][c1-1]="Z ";zCreated++}
+					}
+
+					if(c1+1<20){
+						if(map[c][c1+1]=="H "||map[c][c1+1]=="P "){map[c][c1+1]="Z ";zCreated++}
+					}
+					
+					if(c-1>=0){
+						if(map[c-1][c1]=="H "||map[c-1][c1]=="P "){map[c-1][c1]="Z ";zCreated++}
+					}
+					
+					if(c+1<20){
+						if(map[c+1][c1]=="H "||map[c+1][c1]=="P "){map[c+1][c1]="Z ";zCreated++}
+					}
+					
+				}
+			}
+		
+		}
+
+
+	//zombies move
+		for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="Z "){
+					var dir = Math.floor(Math.random()*4);
+					//console.log(dir);
+
+					switch(dir){
+						case 0://left
+							if(c1-1>=0){
+								if(map2[c][c1-1]==". "){
+									map2[c][c1-1]="Z ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 1://right
+							if(c1+1<20){
+								if(map2[c][c1+1]==". "){
+									map2[c][c1+1]="Z ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 2://up
+							if(c-1>=0){
+								if(map2[c-1][c1]==". "){
+									map2[c-1][c1]="Z ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						case 3://down
+							if(c+1<20){
+								if(map2[c+1][c1]==". "){
+									map2[c+1][c1]="Z ";
+									map2[c][c1]=". ";
+								}
+							}
+						break;
+						
+						default:
+					}
+				}
+			}
+		
+		}
+
+	for (var c = 0;c<20;c++){
+		for(var c1 = 0;c1<20;c1++){
+			map[c][c1]= map2[c][c1];
+		}
+	}
+
+	//hunters kill
+
+	for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="H "){
+					
+					var zKill = 0;
+
+					if(c1-1>=0){
+						if(map[c][c1-1]=="Z "){map[c][c1-1]=". ";zKill++;zKilled++}
+					}
+					if(c1+1<20){
+						if(map[c][c1+1]=="Z "){map[c][c1+1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c-1>=0){
+						if(map[c-1][c1]=="Z "){map[c-1][c1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c+1<20){
+						if(map[c+1][c1]=="Z "){map[c+1][c1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c-1>=0&&c1-1>=0){
+						if(map[c-1][c1-1]=="Z "){map[c-1][c1-1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c+1<20&&c1+1<20){
+						if(map[c+1][c1+1]=="Z "){map[c+1][c1+1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c-1>=0&&c1+1<20){
+						if(map[c-1][c1+1]=="Z "){map[c-1][c1+1]=". ";zKill++;zKilled++}
+					}
+					if(zKill >= 2){continue;}
+					if(c+1<20&&c1-1>=0){
+						if(map[c+1][c1-1]=="Z "){map[c+1][c1-1]=". ";zKill++;zKilled++}
+					}
+
+					
+				}
+			}
+		
+		}
+
+	//zombies kill
+
+	for(var c = 0;c<20;c++){
+		
+			for(var c1 = 0;c1<20;c1++){
+				if(map[c][c1]=="Z "){
+					
+				
+
+					if(c1-1>=0){
+						if(map[c][c1-1]=="H "||map[c][c1-1]=="P "){map[c][c1-1]="Z ";zCreated++}
+					}
+
+					if(c1+1<20){
+						if(map[c][c1+1]=="H "||map[c][c1+1]=="P "){map[c][c1+1]="Z ";zCreated++}
+					}
+					
+					if(c-1>=0){
+						if(map[c-1][c1]=="H "||map[c-1][c1]=="P "){map[c-1][c1]="Z ";zCreated++}
+					}
+					
+					if(c+1<20){
+						if(map[c+1][c1]=="H "||map[c+1][c1]=="P "){map[c+1][c1]="Z ";zCreated++}
+					}
+					
+				}
+			}
+		
+		}
+
+	draw();
+	lCount++;
+	
+	var dec = ((zCreated-zCreatedTemp)-(zKilled-zKilledTemp));
+	//console.log(dec);
+	decay.push(dec);
+	if(lCount>runs){
+		//multiply decs
+		var mult = 0;
+		var length = 0;
+		for(var c = 0;c<decay.length;c++){
+			mult+=decay[c];
+			if(Math.abs(decay[c])>5){length++;}
+		}
+		var totalDec = Math.floor(mult/length);
+		console.log(totalDec);
+		if(totalDec>5){
+			console.log("Zombies win!");
+			document.getElementById('stat').innerHTML += "Zombies win! " + "z:" +z+ " h: "+h+" p:"+p+" total:"+total + " Killed: "+ zKilled+" Created: "+zCreated+"<br/>";
+		}else if(totalDec<-5){
+			console.log("Hunters win!");
+			document.getElementById('stat').innerHTML += "Hunters win! " + "z:" +z+ " h: "+h+" p:"+p+" total:"+total + " Killed: "+ zKilled+" Created: "+zCreated+"<br/>";
+		}else{
+			console.log("Ballence");
+			document.getElementById('stat').innerHTML += "Ballence! " + "z:" +z+ " h: "+h+" p:"+p+" total:"+total + " Killed: "+ zKilled+" Created: "+zCreated+"<br/>";
+		}
+		createMap();
+	}
+}
+
+createMap();
+var l = window.setInterval(loop,100);
+
+</script>
